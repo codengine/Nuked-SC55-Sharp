@@ -19,6 +19,14 @@ The managed assembly targets `netstandard2.1`, `net8.0`, and `net10.0`. The sing
 ROM images are not distributed. The loader identifies files by SHA-256 content, so their filenames do not select the
 emulated revision.
 
+## Install
+
+```shell
+dotnet add package Nuked-SC55-Sharp --version 0.7.0
+```
+
+The package is available from [NuGet](https://www.nuget.org/packages/Nuked-SC55-Sharp/).
+
 ## Basic use
 
 ```csharp
@@ -45,6 +53,12 @@ Use `Render(Span<float>)` for normalized floating-point samples or
 contain an even number of samples.
 
 Instances are independent but not thread-safe. The caller must serialize all operations on each instance.
+
+## Demo
+
+[Managed Doom SC-55](https://github.com/codengine/managed-doom-sc55) demonstrates this package in a complete game. It
+uses Nuked-SC55-Sharp as an optional music backend for Doom's MUS and standard MIDI playback, with SoundFont playback
+as a fallback when SC-55 emulation is not configured.
 
 ## Rates and startup
 
