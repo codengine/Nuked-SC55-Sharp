@@ -1,0 +1,65 @@
+Nuked-SC55-Sharp contains components under different terms.
+
+Wrapper code
+============
+
+Copyright (c) 2026 Stefan Hueg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of the original C#, C ABI shim, build, and packaging code in this repository
+(the "Wrapper"), to deal in the Wrapper without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Wrapper, and to permit
+persons to whom the Wrapper is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Wrapper.
+
+THE WRAPPER IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE WRAPPER OR THE USE OR OTHER DEALINGS IN THE
+WRAPPER.
+
+Nuked-SC55 native component
+===========================
+
+The native binaries combine the Wrapper with Nuked-SC55 and are therefore
+subject to the following noncommercial MAME-derived terms. These restrictions
+apply even though the independently authored Wrapper source is available under
+the MIT terms above.
+
+Nuked SC55 is distributed under the original MAME license:
+
+Redistribution and use of this code or any derivative works are permitted
+provided that the following conditions are met:
+
+* Redistributions may not be sold, nor may they be used in a commercial
+product or activity.
+
+* Redistributions that are modified from the original source must include the
+complete source code, including the source code for all components used by a
+binary built from the modified sources. However, as a special exception, the
+source code distributed need not include anything that is normally distributed
+in either source or binary form) with the major components (compiler, kernel,
+and so on) of the operating system on which the executable runs, unless that
+component itself accompanies the executable.
+
+* Redistributions must reproduce the above copyright notice, this list of
+conditions and the following disclaimer in the documentation and/or other
+materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.

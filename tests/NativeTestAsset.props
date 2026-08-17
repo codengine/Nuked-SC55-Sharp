@@ -1,0 +1,8 @@
+<Project>
+    <PropertyGroup>
+        <NativeTestLibrary Condition="'$(NativeTestLibrary)' == '' and '$(OS)' == 'Windows_NT'">$(MSBuildThisFileDirectory)..\native\build-msvc\NukedSC55Sharp.Native.dll</NativeTestLibrary>
+    </PropertyGroup>
+    <ItemGroup Condition="Exists('$(NativeTestLibrary)')">
+        <None Include="$(NativeTestLibrary)" Link="NukedSC55Sharp.Native.dll" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+</Project>

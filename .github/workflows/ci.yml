@@ -1,0 +1,200 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-linux:
+    name: Native ${{ matrix.rid }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: linux-x64
+            runner: ubuntu-24.04
+            image: quay.io/pypa/manylinux_2_28_x86_64:latest
+            architecture: x64
+          - rid: linux-arm64
+            runner: ubuntu-24.04-arm
+            image: quay.io/pypa/manylinux_2_28_aarch64:latest
+            architecture: arm64
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.image }}
+    steps:
+      - uses: actions/checkout@v7
+        if: env.ACT != 'true'
+        with:
+          submodules: recursive
+      - name: Configure
+        run: |
+          source /opt/rh/gcc-toolset-14/enable
+          cmake --fresh -S native -B "native/build-${{ matrix.rid }}" -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PWD/ci-native/${{ matrix.rid }}" -DNSC55_BUILD_TESTS=ON
+      - name: Build
+        run: cmake --build "native/build-${{ matrix.rid }}" --config Release
+      - name: Test
+        run: ctest --test-dir "native/build-${{ matrix.rid }}" -C Release --output-on-failure
+      - name: Install
+        run: cmake --install "native/build-${{ matrix.rid }}" --config Release
+      - name: Verify binary
+        run: bash scripts/verify-native-binary.sh "ci-native/${{ matrix.rid }}/libNukedSC55Sharp.Native.so" linux "${{ matrix.architecture }}"
+      - uses: actions/upload-artifact@v7
+        if: env.ACT != 'true'
+        with:
+          name: native-${{ matrix.rid }}
+          path: ci-native
+          if-no-files-found: error
+
+  native-desktop:
+    name: Native ${{ matrix.rid }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            runner: windows-2025
+            architecture: x64
+          - rid: win-arm64
+            runner: windows-11-vs2026-arm
+            architecture: arm64
+          - rid: osx-x64
+            runner: macos-15-intel
+            architecture: x64
+          - rid: osx-arm64
+            runner: macos-15
+            architecture: arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v7
+        if: env.ACT != 'true'
+        with:
+          submodules: recursive
+      - name: Configure
+        shell: pwsh
+        run: cmake --fresh -S native -B "native/build-${{ matrix.rid }}" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$pwd/ci-native/${{ matrix.rid }}" -DNSC55_BUILD_TESTS=ON
+      - name: Build
+        run: cmake --build "native/build-${{ matrix.rid }}" --config Release
+      - name: Test
+        run: ctest --test-dir "native/build-${{ matrix.rid }}" -C Release --output-on-failure
+      - name: Install
+        run: cmake --install "native/build-${{ matrix.rid }}" --config Release
+      - name: Verify Windows binary
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/Verify-NativeBinary.ps1 -BinaryPath "ci-native/${{ matrix.rid }}/NukedSC55Sharp.Native.dll" -Architecture "${{ matrix.architecture }}"
+      - name: Verify macOS binary
+        if: runner.os == 'macOS'
+        run: bash scripts/verify-native-binary.sh "ci-native/${{ matrix.rid }}/libNukedSC55Sharp.Native.dylib" macos "${{ matrix.architecture }}"
+      - uses: actions/upload-artifact@v7
+        if: env.ACT != 'true'
+        with:
+          name: native-${{ matrix.rid }}
+          path: ci-native
+          if-no-files-found: error
+
+  package:
+    name: Build and inspect package
+    needs: [native-linux, native-desktop]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: native-*
+          path: .artifacts/native
+          merge-multiple: true
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Create native source archive
+        shell: pwsh
+        run: ./scripts/Create-NativeSourceArchive.ps1
+      - name: Build
+        run: dotnet build Nuked-SC55-Sharp.sln -c Release -v:minimal -p:ContinuousIntegrationBuild=true -p:NativeTestLibrary="$PWD/.artifacts/native/linux-x64/libNukedSC55Sharp.Native.so"
+      - name: Test
+        run: dotnet test Nuked-SC55-Sharp.sln -c Release --no-build -v:minimal -p:NativeTestLibrary="$PWD/.artifacts/native/linux-x64/libNukedSC55Sharp.Native.so"
+      - name: Inspect package
+        shell: pwsh
+        run: ./scripts/Test-NuGetPackage.ps1 -PackagePath src/NukedSC55Sharp/bin/Release/Nuked-SC55-Sharp.0.7.0.nupkg -RequireAllRids
+      - name: Stage package artifacts
+        run: |
+          mkdir ci-package
+          cp src/NukedSC55Sharp/bin/Release/Nuked-SC55-Sharp.0.7.0.nupkg ci-package/
+          cp src/NukedSC55Sharp/bin/Release/Nuked-SC55-Sharp.0.7.0.snupkg ci-package/
+          cp .artifacts/source/Nuked-SC55-Sharp-native-source.zip ci-package/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: package
+          path: ci-package
+          if-no-files-found: error
+
+  package-consumer:
+    name: Package consumer ${{ matrix.rid }}
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            runner: windows-2025
+          - rid: win-arm64
+            runner: windows-11-vs2026-arm
+          - rid: linux-x64
+            runner: ubuntu-24.04
+          - rid: linux-arm64
+            runner: ubuntu-24.04-arm
+          - rid: osx-x64
+            runner: macos-15-intel
+          - rid: osx-arm64
+            runner: macos-15
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
+        with:
+          name: package
+          path: .artifacts/package
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Restore fresh consumer
+        run: dotnet restore tests/NukedSC55Sharp.PackageConsumer/NukedSC55Sharp.PackageConsumer.csproj --configfile tests/NukedSC55Sharp.PackageConsumer/NuGet.Config
+      - name: Run net8.0 consumer
+        run: dotnet run --project tests/NukedSC55Sharp.PackageConsumer/NukedSC55Sharp.PackageConsumer.csproj -f net8.0 --no-restore
+      - name: Run net10.0 consumer
+        run: dotnet run --project tests/NukedSC55Sharp.PackageConsumer/NukedSC55Sharp.PackageConsumer.csproj -f net10.0 --no-restore
+
+  release:
+    name: Create GitHub release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package-consumer
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: package
+          path: release
+      - name: Validate release tag
+        run: test "$GITHUB_REF_NAME" = "v0.7.0"
+      - name: Create checksums
+        working-directory: release
+        run: find . -maxdepth 1 -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.txt
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release/* --verify-tag --generate-notes --title "$GITHUB_REF_NAME"

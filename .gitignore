@@ -1,0 +1,13 @@
+/.artifacts/
+/.dotnet-home/
+/.idea/
+/.vs/
+/.vscode/
+**/bin/
+**/obj/
+**/build/
+/native/build*/
+/ci-native/
+/ci-package/
+*.user
+*.suo
