@@ -1,5 +1,3 @@
-using NukedSC55Sharp;
-
 namespace NukedSC55Sharp.NetStandard.Tests;
 
 /// <summary>Proves the forced consumer reference resolves the netstandard2.1 assembly.</summary>

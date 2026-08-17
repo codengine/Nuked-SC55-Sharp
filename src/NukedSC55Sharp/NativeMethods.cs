@@ -8,20 +8,27 @@ internal enum NativeStatus
 {
     /// <summary>The native operation completed.</summary>
     Success,
+
     /// <summary>The native call received an invalid argument.</summary>
     InvalidArgument,
+
     /// <summary>The requested ROM-set identifier is unknown.</summary>
     RomSetNotFound,
+
     /// <summary>The selected ROM set is incomplete or ambiguous.</summary>
     RomSetIncomplete,
+
     /// <summary>Identified ROM data could not be loaded.</summary>
     RomLoadFailed,
+
     /// <summary>Native emulator allocation or initialization failed.</summary>
     InitializationFailed,
+
     /// <summary>Native PCM rendering failed.</summary>
     RenderingFailed,
+
     /// <summary>An unexpected failure was contained by the C ABI.</summary>
-    InternalError,
+    InternalError
 }
 
 /// <summary>Mirrors MIDI reset values accepted by native ABI version 1.</summary>
@@ -29,10 +36,12 @@ internal enum NativeReset
 {
     /// <summary>Does not send a reset sequence.</summary>
     None,
+
     /// <summary>Sends the General MIDI reset sequence.</summary>
     GeneralMidi,
+
     /// <summary>Sends the Roland General Standard reset sequence.</summary>
-    GeneralStandard,
+    GeneralStandard
 }
 
 /// <summary>Declares the stable C ABI exported by the packaged native library.</summary>
@@ -171,8 +180,7 @@ internal sealed class SafeNukedSc55Handle : SafeHandle
 {
     /// <summary>Wraps a successfully created native emulator handle.</summary>
     /// <param name="handle">Nonzero handle returned by native ABI version 1.</param>
-    internal SafeNukedSc55Handle(IntPtr handle)
-        : base(IntPtr.Zero, true)
+    internal SafeNukedSc55Handle(IntPtr handle) : base(IntPtr.Zero, true)
     {
         SetHandle(handle);
     }

@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace NukedSC55Sharp;
@@ -9,6 +8,10 @@ public sealed unsafe class NukedSc55 : IDisposable
 {
     private const uint AbiVersion = 1;
     private const int ErrorCapacity = 4096;
+
+    /// <summary>Gets the fixed number of interleaved output channels.</summary>
+    public const int ChannelCount = 2;
+
     private readonly byte[] _errorBuffer = new byte[ErrorCapacity];
     private readonly SafeNukedSc55Handle _handle;
     private bool _disposed;
@@ -33,6 +36,7 @@ public sealed unsafe class NukedSc55 : IDisposable
         {
             throw new ArgumentException("NVRAM persistence is available only for JV-880 ROM sets.", nameof(options));
         }
+
         if (options.NvramPath is not null && string.IsNullOrWhiteSpace(options.NvramPath))
         {
             throw new ArgumentException("The NVRAM path cannot be blank.", nameof(options));
@@ -69,9 +73,6 @@ public sealed unsafe class NukedSc55 : IDisposable
         SampleRate = checked((int)NativeMethods.GetSampleRate(_handle));
     }
 
-    /// <summary>Gets the fixed number of interleaved output channels.</summary>
-    public const int ChannelCount = 2;
-
     /// <summary>Gets the exact ROM-set revision loaded by this instance.</summary>
     public NukedSc55RomSet RomSet { get; }
 
@@ -80,6 +81,18 @@ public sealed unsafe class NukedSc55 : IDisposable
 
     /// <summary>Gets whether the instance emits the native core's doubled PCM rate.</summary>
     public bool OversamplingEnabled { get; }
+
+    /// <summary>Releases native state and performs the upstream clean-disposal NVRAM save when configured.</summary>
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _handle.Dispose();
+        _disposed = true;
+    }
 
     /// <summary>Copies raw MIDI UART bytes to an ordered offset within the next render call.</summary>
     /// <param name="bytes">One or more raw bytes; complete SysEx must include both <c>F0</c> and <c>F7</c>.</param>
@@ -91,9 +104,12 @@ public sealed unsafe class NukedSc55 : IDisposable
         {
             throw new ArgumentException("MIDI data must contain at least one byte.", nameof(bytes));
         }
+
         if (frameOffset < 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(frameOffset), frameOffset, "A MIDI frame offset cannot be negative.");
+            throw new ArgumentOutOfRangeException(nameof(frameOffset),
+                frameOffset,
+                "A MIDI frame offset cannot be negative.");
         }
 
         NativeStatus status;
@@ -174,24 +190,13 @@ public sealed unsafe class NukedSc55 : IDisposable
         _maximumQueuedFrameOffset = -1;
     }
 
-    /// <summary>Releases native state and performs the upstream clean-disposal NVRAM save when configured.</summary>
-    public void Dispose()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _handle.Dispose();
-        _disposed = true;
-    }
-
     private int ValidateRender(int sampleCount, string parameterName)
     {
         ThrowIfDisposed();
         if ((sampleCount & 1) != 0)
         {
-            throw new ArgumentException("An interleaved stereo destination must contain an even sample count.", parameterName);
+            throw new ArgumentException("An interleaved stereo destination must contain an even sample count.",
+                parameterName);
         }
 
         var frameCount = sampleCount / ChannelCount;

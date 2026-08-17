@@ -1,5 +1,3 @@
-using NukedSC55Sharp;
-
 namespace NukedSC55Sharp.Tests;
 
 /// <summary>Proves the managed configuration, complete ROM-set enum, and native error contract.</summary>
@@ -51,7 +49,7 @@ public sealed class PublicContractTests
             NukedSc55RomSet.Sc155Mk2CtfSc55DrumSc55V121,
             NukedSc55RomSet.Sc155Mk2CtfSc55DrumSc55V200,
             NukedSc55RomSet.Sc155Mk2CtfMk2DrumSc55V121,
-            NukedSc55RomSet.Sc155Mk2CtfMk2DrumSc55V200,
+            NukedSc55RomSet.Sc155Mk2CtfMk2DrumSc55V200
         ];
 
         Assert.Equal(expected, Enum.GetValues<NukedSc55RomSet>());
@@ -71,7 +69,7 @@ public sealed class PublicContractTests
             "mk2-ctf-mk2-drum-sc55-v1.21", "mk2-ctf-mk2-drum-sc55-v2.00",
             "sc155mk2-ctf-strict-sc55-drum-sc55-v1.21", "sc155mk2-ctf-strict-sc55-drum-sc55-v2.00",
             "sc155mk2-ctf-sc55-drum-sc55-v1.21", "sc155mk2-ctf-sc55-drum-sc55-v2.00",
-            "sc155mk2-ctf-mk2-drum-sc55-v1.21", "sc155mk2-ctf-mk2-drum-sc55-v2.00",
+            "sc155mk2-ctf-mk2-drum-sc55-v1.21", "sc155mk2-ctf-mk2-drum-sc55-v2.00"
         };
         var directory = Directory.CreateTempSubdirectory("NukedSC55Sharp-");
         try
@@ -100,7 +98,7 @@ public sealed class PublicContractTests
         {
             var options = new NukedSc55Options(directory.FullName, NukedSc55RomSet.Mk1V121)
             {
-                NvramPath = Path.Combine(directory.FullName, "state.bin"),
+                NvramPath = Path.Combine(directory.FullName, "state.bin")
             };
 
             Assert.Throws<ArgumentException>(() => new NukedSc55(options));

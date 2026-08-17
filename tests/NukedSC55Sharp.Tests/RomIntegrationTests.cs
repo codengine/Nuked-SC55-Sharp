@@ -1,5 +1,3 @@
-using NukedSC55Sharp;
-
 namespace NukedSC55Sharp.Tests;
 
 /// <summary>Exercises real synthesis only when the caller supplies non-redistributable ROMs.</summary>
@@ -45,13 +43,13 @@ public sealed class RomIntegrationTests
             Assert.Contains(floatPcm, sample => sample != 0f);
 
             var invalidDestination = Enumerable.Repeat(0.25f, 128).ToArray();
-            synth.QueueMidi(NoteOnWithRunningStatus, frameOffset: 64);
+            synth.QueueMidi(NoteOnWithRunningStatus, 64);
             Assert.Throws<ArgumentOutOfRangeException>(() => synth.Render(invalidDestination));
             Assert.All(invalidDestination, sample => Assert.Equal(0.25f, sample));
             synth.ClearQueuedMidi();
             synth.Render(invalidDestination);
 
-            synth.QueueMidi(NoteOnWithRunningStatus, frameOffset: int.MaxValue);
+            synth.QueueMidi(NoteOnWithRunningStatus, int.MaxValue);
             synth.Reset();
             var resetFloatPcm = new float[floatPcm.Length];
             QueueAudibleSequence(synth);
@@ -82,7 +80,7 @@ public sealed class RomIntegrationTests
 
             var oversamplingOptions = new NukedSc55Options(romDirectory, romSet)
             {
-                EnableOversampling = true,
+                EnableOversampling = true
             };
             using (var oversampled = new NukedSc55(oversamplingOptions))
             {
@@ -94,7 +92,7 @@ public sealed class RomIntegrationTests
                      {
                          NukedSc55InitialReset.None,
                          NukedSc55InitialReset.GeneralMidi,
-                         NukedSc55InitialReset.GeneralStandard,
+                         NukedSc55InitialReset.GeneralStandard
                      })
             {
                 var resetOptions = new NukedSc55Options(romDirectory, romSet) { InitialReset = reset };

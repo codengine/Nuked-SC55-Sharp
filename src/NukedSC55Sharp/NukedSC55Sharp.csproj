@@ -34,33 +34,33 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"
-                          Condition="'$(ContinuousIntegrationBuild)' == 'true'" />
+                          Condition="'$(ContinuousIntegrationBuild)' == 'true'"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
-        <None Include="..\..\README.md" Pack="true" PackagePath="" />
-        <None Include="..\..\THIRD_PARTY_NOTICES.md" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath=""/>
+        <None Include="..\..\README.md" Pack="true" PackagePath=""/>
+        <None Include="..\..\THIRD_PARTY_NOTICES.md" Pack="true" PackagePath=""/>
         <None Include="..\..\.artifacts\source\Nuked-SC55-Sharp-native-source.zip"
               Pack="true" PackagePath="native-source/"
-              Condition="Exists('..\..\.artifacts\source\Nuked-SC55-Sharp-native-source.zip')" />
+              Condition="Exists('..\..\.artifacts\source\Nuked-SC55-Sharp-native-source.zip')"/>
         <None Include="..\..\.artifacts\native\win-x64\NukedSC55Sharp.Native.dll"
               Pack="true" PackagePath="runtimes/win-x64/native/"
-              Condition="Exists('..\..\.artifacts\native\win-x64\NukedSC55Sharp.Native.dll')" />
+              Condition="Exists('..\..\.artifacts\native\win-x64\NukedSC55Sharp.Native.dll')"/>
         <None Include="..\..\.artifacts\native\win-arm64\NukedSC55Sharp.Native.dll"
               Pack="true" PackagePath="runtimes/win-arm64/native/"
-              Condition="Exists('..\..\.artifacts\native\win-arm64\NukedSC55Sharp.Native.dll')" />
+              Condition="Exists('..\..\.artifacts\native\win-arm64\NukedSC55Sharp.Native.dll')"/>
         <None Include="..\..\.artifacts\native\linux-x64\libNukedSC55Sharp.Native.so"
               Pack="true" PackagePath="runtimes/linux-x64/native/"
-              Condition="Exists('..\..\.artifacts\native\linux-x64\libNukedSC55Sharp.Native.so')" />
+              Condition="Exists('..\..\.artifacts\native\linux-x64\libNukedSC55Sharp.Native.so')"/>
         <None Include="..\..\.artifacts\native\linux-arm64\libNukedSC55Sharp.Native.so"
               Pack="true" PackagePath="runtimes/linux-arm64/native/"
-              Condition="Exists('..\..\.artifacts\native\linux-arm64\libNukedSC55Sharp.Native.so')" />
+              Condition="Exists('..\..\.artifacts\native\linux-arm64\libNukedSC55Sharp.Native.so')"/>
         <None Include="..\..\.artifacts\native\osx-x64\libNukedSC55Sharp.Native.dylib"
               Pack="true" PackagePath="runtimes/osx-x64/native/"
-              Condition="Exists('..\..\.artifacts\native\osx-x64\libNukedSC55Sharp.Native.dylib')" />
+              Condition="Exists('..\..\.artifacts\native\osx-x64\libNukedSC55Sharp.Native.dylib')"/>
         <None Include="..\..\.artifacts\native\osx-arm64\libNukedSC55Sharp.Native.dylib"
               Pack="true" PackagePath="runtimes/osx-arm64/native/"
-              Condition="Exists('..\..\.artifacts\native\osx-arm64\libNukedSC55Sharp.Native.dylib')" />
+              Condition="Exists('..\..\.artifacts\native\osx-arm64\libNukedSC55Sharp.Native.dylib')"/>
     </ItemGroup>
 </Project>

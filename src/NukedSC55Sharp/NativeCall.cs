@@ -34,7 +34,7 @@ internal static class NativeCall
             NativeStatus.RomLoadFailed => NukedSc55ErrorCode.RomLoadFailed,
             NativeStatus.InitializationFailed => NukedSc55ErrorCode.InitializationFailed,
             NativeStatus.RenderingFailed => NukedSc55ErrorCode.RenderingFailed,
-            _ => NukedSc55ErrorCode.NativeFailure,
+            _ => NukedSc55ErrorCode.NativeFailure
         };
     }
 }

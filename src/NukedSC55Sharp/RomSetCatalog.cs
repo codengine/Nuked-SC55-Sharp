@@ -8,10 +8,7 @@ internal readonly struct RomSetDescriptor
     /// <param name="automaticReset">Reset selected when the caller requests automatic behavior.</param>
     /// <param name="startupSteps">Core steps discarded before audio is exposed.</param>
     /// <param name="isJv880">Whether the hardware accepts persistent NVRAM.</param>
-    internal RomSetDescriptor(string identifier,
-        NativeReset automaticReset,
-        ulong startupSteps,
-        bool isJv880 = false)
+    internal RomSetDescriptor(string identifier, NativeReset automaticReset, ulong startupSteps, bool isJv880 = false)
     {
         Identifier = identifier;
         AutomaticReset = automaticReset;
@@ -68,7 +65,7 @@ internal static class RomSetCatalog
         new("sc155mk2-ctf-sc55-drum-sc55-v1.21", NativeReset.None, FullStartupSteps),
         new("sc155mk2-ctf-sc55-drum-sc55-v2.00", NativeReset.None, FullStartupSteps),
         new("sc155mk2-ctf-mk2-drum-sc55-v1.21", NativeReset.None, FullStartupSteps),
-        new("sc155mk2-ctf-mk2-drum-sc55-v2.00", NativeReset.None, FullStartupSteps),
+        new("sc155mk2-ctf-mk2-drum-sc55-v2.00", NativeReset.None, FullStartupSteps)
     ];
 
     /// <summary>Gets the descriptor for one defined public enum value.</summary>
@@ -77,12 +74,9 @@ internal static class RomSetCatalog
     internal static RomSetDescriptor GetDescriptor(NukedSc55RomSet romSet)
     {
         var index = (int)romSet;
-        if ((uint)index >= (uint)Descriptors.Length)
-        {
-            throw new ArgumentOutOfRangeException(nameof(romSet), romSet, "The ROM set is not defined.");
-        }
-
-        return Descriptors[index];
+        return (uint)index >= (uint)Descriptors.Length
+            ? throw new ArgumentOutOfRangeException(nameof(romSet), romSet, "The ROM set is not defined.")
+            : Descriptors[index];
     }
 
     /// <summary>Resolves an explicit or automatic public reset to its native representation.</summary>
@@ -97,7 +91,7 @@ internal static class RomSetCatalog
             NukedSc55InitialReset.None => NativeReset.None,
             NukedSc55InitialReset.GeneralMidi => NativeReset.GeneralMidi,
             NukedSc55InitialReset.GeneralStandard => NativeReset.GeneralStandard,
-            _ => throw new ArgumentOutOfRangeException(nameof(reset), reset, "The initial reset is not defined."),
+            _ => throw new ArgumentOutOfRangeException(nameof(reset), reset, "The initial reset is not defined.")
         };
     }
 }
