@@ -58,11 +58,13 @@ jobs:
       matrix:
         include:
           - rid: win-x64
-            runner: windows-2025
+            runner: windows-2025-vs2026
             architecture: x64
+            cmake_platform: x64
           - rid: win-arm64
             runner: windows-11-vs2026-arm
             architecture: arm64
+            cmake_platform: ARM64
           - rid: osx-x64
             runner: macos-15-intel
             architecture: x64
@@ -75,7 +77,12 @@ jobs:
         if: env.ACT != 'true'
         with:
           submodules: recursive
-      - name: Configure
+      - name: Configure Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: cmake --fresh -S native -B "native/build-${{ matrix.rid }}" -G "Visual Studio 18 2026" -A "${{ matrix.cmake_platform }}" -DCMAKE_INSTALL_PREFIX="$pwd/ci-native/${{ matrix.rid }}" -DNSC55_BUILD_TESTS=ON
+      - name: Configure macOS
+        if: runner.os == 'macOS'
         shell: pwsh
         run: cmake --fresh -S native -B "native/build-${{ matrix.rid }}" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$pwd/ci-native/${{ matrix.rid }}" -DNSC55_BUILD_TESTS=ON
       - name: Build
@@ -185,6 +192,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v7
         with:
           name: package
