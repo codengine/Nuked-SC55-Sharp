@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <deque>
 #include <exception>
 #include <filesystem>
 #include <memory>
@@ -26,6 +27,64 @@ struct MidiEvent
 {
     uint32_t frame_offset;
     std::vector<uint8_t> bytes;
+};
+
+// Delivers MIDI bytes to the emulated UART like a 31250-baud MIDI cable: in queue order, at most one byte per 320 us,
+// and only into free slots of the core's receive ring. The core needs both limits from its caller: MCU_PostUART
+// overwrites unread bytes when the ring is full, a full ring reads as empty, and the emulated UART takes bytes about
+// two (main MCU) to three (sub-MCU) times as fast as a cable carries them, faster than the firmware processes dense
+// data, which it then drops or delays. Bytes that may not enter yet wait here.
+class MidiCable
+{
+public:
+    explicit MidiCable(Emulator& emulator)
+        : emulator(emulator)
+    {
+    }
+
+    // Empties the cable for a new emulator that renders `rate` frames per second.
+    void Start(uint32_t rate)
+    {
+        pending.clear();
+        frame_rate = rate;
+        credit = rate;
+    }
+
+    void Send(std::span<const uint8_t> bytes)
+    {
+        pending.insert(pending.end(), bytes.begin(), bytes.end());
+    }
+
+    // Advances the cable by one output frame. `credit` counts cable time in units of 1 / (frame_rate * BytesPerSecond)
+    // seconds, so one byte costs frame_rate units and one frame earns BytesPerSecond units. It is capped at one byte:
+    // an idle line sends the next byte at once, but never faster than the line rate.
+    void Tick()
+    {
+        if (!pending.empty() && credit >= frame_rate && FreeSlots() != 0)
+        {
+            emulator.PostMIDI(pending.front());
+            pending.pop_front();
+            credit -= frame_rate;
+        }
+
+        credit = std::min<uint64_t>(credit + BytesPerSecond, frame_rate);
+    }
+
+private:
+    // 31250 baud with 10 bits per byte: start bit, 8 data bits, stop bit.
+    static constexpr uint64_t BytesPerSecond = 3125;
+
+    // One slot stays empty so that a full ring does not read as empty.
+    uint32_t FreeSlots() const
+    {
+        const mcu_t& mcu = emulator.GetMCU();
+        return uart_buffer_size - 1 - (mcu.uart_write_ptr - mcu.uart_read_ptr) % uart_buffer_size;
+    }
+
+    Emulator& emulator;
+    std::deque<uint8_t> pending;
+    uint64_t frame_rate = 0;
+    uint64_t credit = 0;
 };
 
 enum class SinkFormat
@@ -139,6 +198,7 @@ EMU_SystemReset MapReset(nsc55_reset reset)
 struct nsc55_handle
 {
     Emulator emulator;
+    MidiCable cable{emulator};
     EMU_Options options;
     common::LoadRomsetResult roms;
     std::vector<MidiEvent> events;
@@ -208,6 +268,7 @@ struct nsc55_handle
         emulator.SetSampleCallback(&nsc55_handle::ReceiveSample, this);
         emulator.Reset();
         emulator.GetPCM().enable_oversampling = enable_oversampling;
+        cable.Start(PCM_GetOutputFrequency(emulator.GetPCM()));
         emulator.PostSystemReset(MapReset(initial_reset));
         for (uint64_t step = 0; step < startup_steps; ++step)
         {
@@ -230,9 +291,11 @@ struct nsc55_handle
         {
             while (event_index < events.size() && events[event_index].frame_offset == sink_frame)
             {
-                emulator.PostMIDI(events[event_index].bytes);
+                cable.Send(events[event_index].bytes);
                 ++event_index;
             }
+
+            cable.Tick();
 
             const size_t target_frame = sink_frame + 1;
             while (sink_frame < target_frame)

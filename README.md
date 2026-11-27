@@ -48,6 +48,12 @@ sc55.Render(pcm);
 `QueueMidi` copies raw UART bytes. A system-exclusive message must include its complete wire representation, including
 `F0` and `F7`. Frame offsets are relative to the next `Render` call and equal offsets retain enqueue order.
 
+Queued bytes reach the emulated MIDI input like a 31250-baud MIDI cable carries them: at most 3125 bytes per second,
+in queue order. Bytes that cannot enter at their frame wait and go in during later frames, also in later `Render`
+calls. A large burst therefore takes as long as on real hardware, but no byte is lost and the firmware is never fed
+faster than a real cable would feed it. `ClearQueuedMidi` cancels events of the next `Render` call only; bytes that
+are already waiting stay queued.
+
 Use `Render(Span<float>)` for normalized floating-point samples or
 `Render(Span<short>)` for clamped signed 16-bit samples. Each destination is interleaved left/right stereo and must
 contain an even number of samples.

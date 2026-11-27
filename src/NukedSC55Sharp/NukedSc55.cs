@@ -95,6 +95,11 @@ public sealed unsafe class NukedSc55 : IDisposable
     }
 
     /// <summary>Copies raw MIDI UART bytes to an ordered offset within the next render call.</summary>
+    /// <remarks>
+    /// Bytes reach the emulated MIDI input like a 31250-baud cable carries them: at most 3125 bytes per second, in
+    /// queue order. Whatever cannot enter at its frame waits and goes in during later frames, also in later render
+    /// calls, so a large burst takes as long as it would on a real cable but loses no byte.
+    /// </remarks>
     /// <param name="bytes">One or more raw bytes; complete SysEx must include both <c>F0</c> and <c>F7</c>.</param>
     /// <param name="frameOffset">Zero-based native PCM frame offset in the next render block.</param>
     public void QueueMidi(ReadOnlySpan<byte> bytes, int frameOffset = 0)
@@ -129,6 +134,9 @@ public sealed unsafe class NukedSc55 : IDisposable
     }
 
     /// <summary>Cancels every MIDI event waiting for the next render call.</summary>
+    /// <remarks>
+    /// Bytes of earlier render calls that still wait for the MIDI input are kept, so the byte stream stays well-formed.
+    /// </remarks>
     public void ClearQueuedMidi()
     {
         ThrowIfDisposed();

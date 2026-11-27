@@ -55,12 +55,17 @@ NSC55_API uint32_t nsc55_sample_rate(const nsc55_handle* handle);
 NSC55_API nsc55_status nsc55_reset_emulator(nsc55_handle* handle,
                                             char* error_utf8,
                                             size_t error_capacity);
+/* Queues bytes for the frame at frame_offset in the next render call. Bytes reach the emulated MIDI input like a
+ * 31250-baud cable carries them, at most 3125 bytes per second and in queue order; whatever cannot enter at its frame
+ * waits and goes in during later frames, also across render calls. */
 NSC55_API nsc55_status nsc55_queue_midi(nsc55_handle* handle,
                                         const uint8_t* bytes,
                                         size_t length,
                                         uint32_t frame_offset,
                                         char* error_utf8,
                                         size_t error_capacity);
+/* Drops the events queued for the next render call. Bytes of earlier render calls that still wait for the MIDI input
+ * are kept, so the byte stream stays well-formed. */
 NSC55_API void nsc55_clear_midi(nsc55_handle* handle);
 NSC55_API nsc55_status nsc55_render_f32(nsc55_handle* handle,
                                         float* interleaved_stereo,
