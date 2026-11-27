@@ -67,7 +67,8 @@ The default output is the native 32,000 or 33,103 Hz rate. Set
 exact selected rate.
 
 `InitialReset = Automatic` applies the model-specific reference behavior. Construction and `Reset()` perform
-model-specific startup settling before returning, so these operations can take noticeable time.
+model-specific startup settling before returning, so these operations can take noticeable time. `Reset()` acts like a
+power cycle: the instance afterwards behaves exactly like a newly created one, except that JV-880 NVRAM is kept.
 
 ## JV-880 NVRAM
 

@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <memory>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -138,6 +139,7 @@ EMU_SystemReset MapReset(nsc55_reset reset)
 struct nsc55_handle
 {
     Emulator emulator;
+    EMU_Options options;
     common::LoadRomsetResult roms;
     std::vector<MidiEvent> events;
     nsc55_reset initial_reset = NSC55_RESET_NONE;
@@ -175,12 +177,35 @@ struct nsc55_handle
         }
     }
 
+    // The core's own Reset only resets the CPU registers. RAM, the main CPU's cycle counter and the PCM chip keep their
+    // state, and the firmware then often ignores MIDI. A reset therefore builds a new emulator from the loaded ROMs,
+    // like a power cycle. JV-880 NVRAM is battery-backed and carries over. If the rebuild fails, the instance is left
+    // unchanged.
     void Reset()
+    {
+        Emulator fresh;
+        if (!fresh.Init(options) || !fresh.LoadRoms(roms.romset, roms.romset_info))
+        {
+            throw std::runtime_error("Nuked-SC55 could not rebuild the emulator.");
+        }
+
+        if (fresh.GetMCU().is_jv880)
+        {
+            std::copy_n(emulator.GetMCU().nvram, NVRAM_SIZE, fresh.GetMCU().nvram);
+        }
+
+        emulator = std::move(fresh);
+        Start();
+    }
+
+    // Brings an emulator that was just built to the state after power-on, initial reset and startup settling.
+    void Start()
     {
         events.clear();
         sink_format = SinkFormat::None;
         sink = nullptr;
         sink_frame = 0;
+        emulator.SetSampleCallback(&nsc55_handle::ReceiveSample, this);
         emulator.Reset();
         emulator.GetPCM().enable_oversampling = enable_oversampling;
         emulator.PostSystemReset(MapReset(initial_reset));
@@ -263,13 +288,12 @@ extern "C" NSC55_API nsc55_status nsc55_create(const char* rom_directory_utf8,
         handle->startup_steps = startup_steps;
         handle->enable_oversampling = enable_oversampling != 0;
 
-        EMU_Options options;
         if (nvram_path_utf8 != nullptr && *nvram_path_utf8 != '\0')
         {
-            options.nvram_filename = Utf8Path(nvram_path_utf8);
+            handle->options.nvram_filename = Utf8Path(nvram_path_utf8);
         }
 
-        if (!handle->emulator.Init(options))
+        if (!handle->emulator.Init(handle->options))
         {
             WriteError(error_utf8, error_capacity, "Nuked-SC55 could not allocate emulator state.");
             return NSC55_STATUS_INITIALIZATION_FAILED;
@@ -294,8 +318,7 @@ extern "C" NSC55_API nsc55_status nsc55_create(const char* rom_directory_utf8,
             return NSC55_STATUS_ROM_LOAD_FAILED;
         }
 
-        handle->emulator.SetSampleCallback(&nsc55_handle::ReceiveSample, handle.get());
-        handle->Reset();
+        handle->Start();
         *output = handle.release();
         WriteError(error_utf8, error_capacity, {});
         return NSC55_STATUS_SUCCESS;

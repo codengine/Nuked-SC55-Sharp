@@ -49,6 +49,9 @@ NSC55_API nsc55_status nsc55_create(const char* rom_directory_utf8,
                                     size_t error_capacity);
 NSC55_API void nsc55_destroy(nsc55_handle* handle);
 NSC55_API uint32_t nsc55_sample_rate(const nsc55_handle* handle);
+/* Rebuilds the emulator from the loaded ROMs, as after nsc55_create: queued events and bytes waiting for the MIDI
+ * input are dropped, the initial reset and startup settling run again, and only JV-880 NVRAM carries over. On failure
+ * the instance is unchanged. */
 NSC55_API nsc55_status nsc55_reset_emulator(nsc55_handle* handle,
                                             char* error_utf8,
                                             size_t error_capacity);

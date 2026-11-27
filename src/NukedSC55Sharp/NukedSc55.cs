@@ -176,7 +176,11 @@ public sealed unsafe class NukedSc55 : IDisposable
         _maximumQueuedFrameOffset = -1;
     }
 
-    /// <summary>Clears queued MIDI and repeats the configured hardware reset and startup settling.</summary>
+    /// <summary>Returns the instance to the state of a newly created one, like a power cycle.</summary>
+    /// <remarks>
+    /// Queued MIDI and bytes still waiting for the MIDI input are dropped, and the configured hardware reset and startup
+    /// settling run again. Only JV-880 NVRAM carries over. If the reset fails, the instance is unchanged.
+    /// </remarks>
     public void Reset()
     {
         ThrowIfDisposed();
