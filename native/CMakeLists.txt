@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(NukedSC55SharpNative VERSION 0.7.0 LANGUAGES C CXX)
+project(NukedSC55SharpNative VERSION 0.7.1 LANGUAGES C CXX)
 
 option(NSC55_BUILD_TESTS "Build native contract tests" OFF)
 

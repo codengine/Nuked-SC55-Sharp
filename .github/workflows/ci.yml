@@ -133,12 +133,12 @@ jobs:
         run: dotnet test Nuked-SC55-Sharp.sln -c Release --no-build -v:minimal -p:NativeTestLibrary="$PWD/.artifacts/native/linux-x64/libNukedSC55Sharp.Native.so"
       - name: Inspect package
         shell: pwsh
-        run: ./scripts/Test-NuGetPackage.ps1 -PackagePath src/NukedSC55Sharp/bin/Release/Nuked-SC55-Sharp.0.7.0.nupkg -RequireAllRids
+        run: ./scripts/Test-NuGetPackage.ps1 -PackagePath src/NukedSC55Sharp/bin/Release/Nuked-SC55-Sharp.0.7.1.nupkg -RequireAllRids
       - name: Stage package artifacts
         run: |
           mkdir ci-package
-          cp src/NukedSC55Sharp/bin/Release/Nuked-SC55-Sharp.0.7.0.nupkg ci-package/
-          cp src/NukedSC55Sharp/bin/Release/Nuked-SC55-Sharp.0.7.0.snupkg ci-package/
+          cp src/NukedSC55Sharp/bin/Release/Nuked-SC55-Sharp.0.7.1.nupkg ci-package/
+          cp src/NukedSC55Sharp/bin/Release/Nuked-SC55-Sharp.0.7.1.snupkg ci-package/
           cp .artifacts/source/Nuked-SC55-Sharp-native-source.zip ci-package/
       - uses: actions/upload-artifact@v7
         with:
@@ -200,7 +200,7 @@ jobs:
           name: package
           path: release
       - name: Validate release tag
-        run: test "$GITHUB_REF_NAME" = "v0.7.0"
+        run: test "$GITHUB_REF_NAME" = "v0.7.1"
       - name: Create checksums
         working-directory: release
         run: find . -maxdepth 1 -type f ! -name SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.txt

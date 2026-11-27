@@ -17,9 +17,9 @@
         <Company>codengine</Company>
         <Description>C# bindings and cross-platform native binaries for Nuked-SC55 emulation.</Description>
         <Copyright>2026 Stefan Hueg and Nuked-SC55 contributors</Copyright>
-        <Version>0.7.0</Version>
-        <AssemblyVersion>0.7.0</AssemblyVersion>
-        <FileVersion>0.7.0</FileVersion>
+        <Version>0.7.1</Version>
+        <AssemblyVersion>0.7.1</AssemblyVersion>
+        <FileVersion>0.7.1</FileVersion>
         <PackageProjectUrl>https://github.com/codengine/Nuked-SC55-Sharp</PackageProjectUrl>
         <RepositoryUrl>https://github.com/codengine/Nuked-SC55-Sharp</RepositoryUrl>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>

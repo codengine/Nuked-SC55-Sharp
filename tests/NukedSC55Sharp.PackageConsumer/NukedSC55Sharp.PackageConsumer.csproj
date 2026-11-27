@@ -7,6 +7,6 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Nuked-SC55-Sharp" Version="0.7.0" />
+        <PackageReference Include="Nuked-SC55-Sharp" Version="0.7.1" />
     </ItemGroup>
 </Project>

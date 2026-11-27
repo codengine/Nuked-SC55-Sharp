@@ -22,7 +22,7 @@ emulated revision.
 ## Install
 
 ```shell
-dotnet add package Nuked-SC55-Sharp --version 0.7.0
+dotnet add package Nuked-SC55-Sharp --version 0.7.1
 ```
 
 The package is available from [NuGet](https://www.nuget.org/packages/Nuked-SC55-Sharp/).
@@ -84,4 +84,4 @@ the instance is cleanly disposed.
 ## Exact ROM sets
 
 `NukedSc55RomSet` exposes every exact standard and CTF-patched set registered by the pinned Nuked-SC55 core. The CTF
-variants are deprecated upstream patches but remain first-class values in version 0.7.0 of this package.
+variants are deprecated upstream patches but remain first-class values in version 0.7.1 of this package.
